@@ -21,6 +21,10 @@ interface Challenge {
 
 // ----------------------------------------------------------------------------------------------------------
 
+/**
+ * @tableName: challenge_category
+ * @description : Représente la catégory d'un challenge
+ */
 interface ChallengeCategory {
     id: number
     title: string
@@ -55,6 +59,24 @@ interface GameList {
     thumbnail?: Media
     players?: Player[]
     challenges?: ChallengeGameList[]
+}
+
+// ----------------------------------------------------------------------------------------------------------
+
+/**
+ * @tableName : gamelist_modes
+ * @description : Représente un mode de jeu prédéfini pour une gamelist
+ */
+interface GameListMode {
+    id: number
+    title: string
+    emoji: string
+    description: string
+    is_active: boolean
+    color: string
+    thumbnail?: Media
+    creator?: User
+    challenges?: Challenge[]
 }
 
 // ----------------------------------------------------------------------------------------------------------
@@ -214,7 +236,12 @@ let gameLists: GameList[] = [
                     email: "...",
                 }
             }
-        ]
+        ],
+        creator: {
+            id: 10,
+            username: '...',
+            email: '...'
+        }
     }
 ]
 
@@ -402,6 +429,58 @@ interface JoinGameListResponse {
 /**
  * @code : gameList.push(response.data)
  */
+
+////////////////////////////////////////////////////////////////////////////
+// APRES POST /gamelists/{gameListId}/proofs
+////////////////////////////////////////////////////////////////////////////
+/**
+ * @description : Réponse HTTP de l'url : https://api.summerlist.app/gamelists/{gameListId}/proofs
+ */
+interface createProofResponse {
+    result: 'success'
+    data: Player
+}
+
+// Après avoir recu la réponse, on va remplacer la variable global playerInfos par la clef data de la réponse (pour la bonne clef de gameList)
+/**
+ * @code : playerInfos[gameListId] = response.data
+ */
+
+////////////////////////////////////////////////////////////////////////////
+// APRES POST /gamelists/{gameListId}/proofs/{proofId}/votes
+////////////////////////////////////////////////////////////////////////////
+/**
+ * @description : Réponse HTTP de l'url : https://api.summerlist.app/gamelists/{gameListId}/proofs
+ */
+interface VoteProofResponse {
+    result: 'success'
+    data: Proof
+}
+
+// Après avoir recu la réponse, on va récupérer les nouvelles stats de la proof (dans la clef data de la réponse) pour afficher le pourcentage de validé et de refus
+// Une fois que l'utilisateur quitte cette interface ou passe à une proof suivante, on supprime la proof de la variable globale activeProofs
+
+////////////////////////////////////////////////////////////////////////////
+// APRES GET /gamelist_modes?with=challenges&filter_by=is_active&filter_for[is_active]=1
+////////////////////////////////////////////////////////////////////////////
+/**
+ * @description : Réponse HTTP de l'url : https://api.summerlist.app/gamelist_modes?with=challenges&filter_by=is_active&filter_for[is_active]=1
+ */
+interface GetGameListModesResponse {
+    result: 'success'
+    data: GameListMode[]
+}
+
+////////////////////////////////////////////////////////////////////////////
+// APRES GET /challenge_categories?with=challenges&filter_by=is_active&filter_for[is_active]=1
+////////////////////////////////////////////////////////////////////////////
+/**
+ * @description : Réponse HTTP de l'url : https://api.summerlist.app/gamelist_modes?with=challenges&filter_by=is_active&filter_for[is_active]=1
+ */
+interface GetChallengeCategoriesResponse {
+    result: 'success'
+    data: ChallengeCategory[]
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // PUSHER EVENTS
