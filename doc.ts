@@ -248,8 +248,8 @@ let gameLists: GameList[] = [
 /**
  * @code : let activeProofs = MeResponse.data.active_proofs
  */
-let activeProofs: { [key: number]: Proof[] } = {
-    5: [
+let activeProofs: { [key: string]: Proof[] } = {
+    "5": [
         {
             id: 115,
             creator: { // Player
@@ -320,8 +320,8 @@ let activeProofs: { [key: number]: Proof[] } = {
 /**
  * @code : let playerInfos = MeResponse.data.player_infos
  */
-let playerInfos: { [key: number]: Player } = {
-    5: {
+let playerInfos: { [key: string]: Player } = {
+    "5": {
         id: 55,
         pseudo: "...",
         code: "...",
@@ -873,7 +873,7 @@ const proofCompletedEventPayload: ProofCompletedEventPayload = {
                 is_majority_refused: false
             }
         },
-        player_infos: [
+        player_infos: [ // player infos of achievers
             {
                 id: 55,
                 pseudo: "...",
