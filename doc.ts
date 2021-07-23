@@ -184,7 +184,7 @@ interface MeResponse {
         id: number
         username: string
         email: string
-        gamelists: GameList
+        gamelists: GameList[]
         active_proofs: { [key: number]: Proof[] }
         player_infos: { [key: number]: Player }
     }
