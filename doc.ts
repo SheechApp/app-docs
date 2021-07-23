@@ -3,19 +3,44 @@
 ////////////////////////////////////////////////////////////////////////////
 
 /**
- * @tableName : proofs
- * @description : Représente une preuve d'un challenge dans une gamelist
+ * @tableName : challenges
+ * @description : Représente un challenge dans sa forme la plus global (d'un POV externe à la gamelist)
  */
-interface Proof {
-    id: number
-    creator: Player
-    is_closed: boolean
-    closed_date: string | null
-    challenge_gamelist?: ChallengeGameList
-    achievers: Player[]
-    media: Media
-    stats?: ProofStatistics
+interface Challenge {
+    id: number,
+    published_state: string
+    show_creator: boolean
+    emoji: string
+    points: number
+    title: string
+    created_at: string
+    updated_at: string
+    creator?: User
+    categories?: ChallengeCategory[]
 }
+
+// ----------------------------------------------------------------------------------------------------------
+
+interface ChallengeCategory {
+    id: number
+    title: string
+    color: string
+    is_active: boolean
+    challenges?: Challenge[]
+}
+
+// ----------------------------------------------------------------------------------------------------------
+
+/**
+ * @tableName : challenge_gamelist (table pivot)
+ * @description : Représente un challenge au sein d'une gamelist
+ */
+interface ChallengeGameList {
+    id: number
+    parent?: Challenge // On retrouve cette clef parent si jamais on souhaite récupérer les infos du challenge global (point, titre, emij ...)
+}
+
+// ----------------------------------------------------------------------------------------------------------
 
 /**
  * @tableName : gamelists
@@ -26,10 +51,13 @@ interface GameList {
     title: string
     code: string
     deadline: string
+    creator?: User
     thumbnail?: Media
     players?: Player[]
     challenges?: ChallengeGameList[]
 }
+
+// ----------------------------------------------------------------------------------------------------------
 
 /**
  * @tableName : medias
@@ -44,40 +72,7 @@ interface Media {
     type: string // image | audio | video
 }
 
-/**
- * @tableName : challenges
- * @description : Représente un challenge dans sa forme la plus global (d'un POV externe à la gamelist)
- */
-interface Challenge {
-    id: number,
-    creator?: User
-    published_state: string
-    show_creator: boolean
-    emoji: string
-    points: number
-    title: string
-    created_at: string
-    updated_at: string
-}
-
-/**
- * @tableName : challenge_gamelist (table pivot)
- * @description : Représente un challenge au sein d'une gamelist
- */
-interface ChallengeGameList {
-    id: number
-    parent?: Challenge // On retrouve cette clef parent si jamais on souhaite récupérer les infos du challenge global (point, titre, emij ...)
-}
-
-/**
- * @tableName : users
- * @description : Représente un user dans sa forme la plus global (d'un POV externe à la gamelist)
- */
-interface User {
-    id: number
-    username: string
-    email: string
-}
+// ----------------------------------------------------------------------------------------------------------
 
 /**
  * @tableName : players (table pivot)
@@ -89,26 +84,48 @@ interface Player {
     pseudo: string
     code: string
     score: number
-    challenge_gamelist_infos?: PlayerChallengeGameListInfos[]
+    challenge_infos?: PlayerChallengeInfos[]
     user?: User // On retrouve cette clef optionnelle si jamais on souhaite avoir les infos sur le user global de ce player
 }
+
+// ----------------------------------------------------------------------------------------------------------
 
 /**
  * @tableName : player_challenge_infos (table pivot)
  * @description : Représente les infos des challenges pour un player au sein d'une gamelist (son status, sa preuve associée ...)
  */
-interface PlayerChallengeGameListInfos {
-    challenge_gamelist?: ChallengeGameList
+interface PlayerChallengeInfos {
     status: string // validated | normal | validation_pending
     validate_date: string | null
-    associated_proof?: Proof // Il est possible qu'une proof soit liée à un challenge du player dans le cas ou ce dernier à soumis une preuve (status = validation_pending)
+    associated_proof?: Proof | null // Il est possible qu'une proof soit liée à un challenge du player dans le cas ou ce dernier à soumis une preuve (status = validation_pending)
     player?: Player
+    challenge_gamelist?: ChallengeGameList
 }
+
+// ----------------------------------------------------------------------------------------------------------
+
+/**
+ * @tableName : proofs
+ * @description : Représente une preuve d'un challenge dans une gamelist
+ */
+interface Proof {
+    id: number
+    creator: Player
+    is_closed: boolean
+    closed_date: string | null
+    has_been_validated: boolean | null
+    challenge_gamelist?: ChallengeGameList
+    achievers: Player[]
+    media: Media
+    stats?: VoteStatistics
+}
+
+// ----------------------------------------------------------------------------------------------------------
 
 /**
  * @description : Représente les statistic de votes pour une preuve donnée
  */
-interface ProofStatistics {
+interface VoteStatistics {
     voters_count: number,
     validated_percent: number,
     refused_percent: number,
@@ -121,20 +138,39 @@ interface ProofStatistics {
     is_majority_refused: boolean
 }
 
+// ----------------------------------------------------------------------------------------------------------
+
+/**
+ * @tableName : users
+ * @description : Représente un user dans sa forme la plus global (d'un POV externe à la gamelist)
+ */
+interface User {
+    id: number
+    username: string
+    email: string
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // APRES GET /me?with=_activeProofs,gamelists,_playerInfos
 ////////////////////////////////////////////////////////////////////////////
 /**
- * @description : Réponse HTTP de l'url : https://api.summerlist.app/users/me?with=gamelists,_activeProofs,_playerInfos
+ * @description : Réponse HTTP de l'url : https://api.summerlist.app/users/me?with=gameLists,_activeProofs,_playerInfos
  */
 interface MeResponse {
-    gamelists: GameList
-    active_proofs: {[key: number]: Proof[]}
-    player_infos: {[key: number]: Player}
+    result: string
+    data: {
+        id: number
+        username: string
+        email: string
+        gamelists: GameList
+        active_proofs: { [key: number]: Proof[] }
+        player_infos: { [key: number]: Player }
+    }
+
 }
 
 /**
- * @code : let gameLists = MeResponse.gamelists
+ * @code : let gameLists = MeResponse.data.gamelists
  */
 let gameLists: GameList[] = [
     {
@@ -172,35 +208,62 @@ let gameLists: GameList[] = [
                 pseudo: "...",
                 code: "...",
                 score: 44,
+                user: {
+                    id: 45,
+                    username: "...",
+                    email: "...",
+                }
             }
         ]
     }
 ]
 
 /**
- * @code : let activeProofs = MeResponse.active_proofs
+ * @code : let activeProofs = MeResponse.data.active_proofs
  */
-let activeProofs: {[key: number]: Proof[]} = {
+let activeProofs: { [key: number]: Proof[] } = {
     5: [
         {
             id: 115,
             creator: { // Player
                 id: 55,
-                pseudo: "...",
-                code: "...",
-                score: 0
+                pseudo: "",
+                code: "",
+                score: 44,
+                user: {
+                    id: 45,
+                    username: '',
+                    email: ''
+                }
             },
             is_closed: false,
+            has_been_validated: null,
             closed_date: null,
-            challenge_gamelist: { // ChallengeGameList
+            challenge_gamelist: { // Challenge GameList
                 id: 5,
+                parent: {
+                    id: 195,
+                    published_state: "...",
+                    show_creator: false,
+                    emoji: "😣",
+                    points: 5,
+                    title: "...",
+                    created_at: "...",
+                    updated_at: "...",
+                }
+
             },
             achievers: [ // Player[]
                 {
-                    id: 5,
-                    pseudo: "...",
-                    code: "...",
-                    score: 0
+                    id: 55,
+                    pseudo: "",
+                    code: "",
+                    score: 44,
+                    user: {
+                        id: 45,
+                        username: '',
+                        email: ''
+                    }
                 }
             ],
             media: { // Media
@@ -228,39 +291,60 @@ let activeProofs: {[key: number]: Proof[]} = {
 }
 
 /**
- * @code : let playerInfos = MeResponse.player_infos
+ * @code : let playerInfos = MeResponse.data.player_infos
  */
-let playerInfos: {[key: number]: Player} = {
+let playerInfos: { [key: number]: Player } = {
     5: {
         id: 55,
         pseudo: "...",
         code: "...",
         score: 44,
-        challenge_gamelist_infos: [
+        challenge_infos: [
             {
-                challenge_gamelist: {
-                    id: 5
+                challenge_gamelist: { // Challenge GameList
+                    id: 5,
+                    parent: {
+                        id: 195,
+                        published_state: "...",
+                        show_creator: false,
+                        emoji: "😣",
+                        points: 5,
+                        title: "...",
+                        created_at: "...",
+                        updated_at: "...",
+                    }
                 }, // ChallengeGameList
                 status: "...",
                 validate_date: null,
-                associated_proof: {
+                associated_proof: { // Proof
                     id: 115,
-                    creator: {
-                        id: 55, // id du player et non du user
-                        pseudo: "...",
-                        code: "...",
-                        score: 0
+                    creator: { // Player
+                        id: 55,
+                        pseudo: "",
+                        code: "",
+                        score: 44,
+                        user: {
+                            id: 45,
+                            username: '',
+                            email: ''
+                        }
                     }, // Player
                     is_closed: false,
+                    has_been_validated: null,
                     closed_date: null,
-                    achievers: [
+                    achievers: [ // Player[]
                         {
-                            id: 355, // id du player et non du user
-                            pseudo: "...",
-                            code: "...",
-                            score: 0
+                            id: 55,
+                            pseudo: "",
+                            code: "",
+                            score: 44,
+                            user: {
+                                id: 45,
+                                username: '',
+                                email: ''
+                            }
                         }
-                    ], // Player[]
+                    ],
                     media: {
                         id: 635,
                         url: "...",
@@ -269,7 +353,7 @@ let playerInfos: {[key: number]: Player} = {
                         size: 3.69,
                         type: "..."
                     }, // Media
-                    stats: {
+                    stats: { // ProofStatistics
                         voters_count: 9,
                         validated_percent: 0,
                         refused_percent: 0,
@@ -280,11 +364,546 @@ let playerInfos: {[key: number]: Player} = {
                         validation_progression_percent: 0,
                         is_majority_validated: false,
                         is_majority_refused: false
-                    } // ProofStatistics
-                }, // Proof
+                    }
+                }
             }
         ]
     }
 }
 
+////////////////////////////////////////////////////////////////////////////
+// APRES le POST /gamelists
+////////////////////////////////////////////////////////////////////////////
+/**
+ * @description : Réponse HTTP de l'url : https://api.summerlist.app/gamelists
+ */
+interface CreateGameListResponse {
+    result: 'success'
+    data: GameList
+}
 
+// Apres avoir recu la réponse, vous avez juste à la push dans la variable globale gamelists :
+/**
+ * @code : gameList.push(response.data)
+ */
+
+////////////////////////////////////////////////////////////////////////////
+// APRES le PUT /gamelists/join/{code}
+////////////////////////////////////////////////////////////////////////////
+/**
+ * @description : Réponse HTTP de l'url : https://api.summerlist.app/gamelists/join/{code}
+ */
+interface JoinGameListResponse {
+    result: 'success'
+    data: GameList
+}
+
+// Apres avoir recu la réponse, vous avez juste à la push dans la variable globale gamelists :
+/**
+ * @code : gameList.push(response.data)
+ */
+
+////////////////////////////////////////////////////////////////////////////
+// PUSHER EVENTS
+////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @name user-join-gamelist
+ * @description Emet l'event sur le channel gamelist_{id}
+ */
+
+interface UserJoinGameListEventPayload {
+    data: {
+        new_player: Player
+    }
+}
+
+const userJoinGameListEventPayload: UserJoinGameListEventPayload = {
+    data: {
+        new_player: {
+            id: 55,
+            pseudo: "Erwan",
+            code: "802d8529-44f9-4987-a5a2-599025476515",
+            score: 44,
+            user: {
+                id: 45,
+                username: 'Naël',
+                email: 'nael@mail.com'
+            }
+        }
+    }
+}
+
+/**
+ * @action : On va push le new_player dans le tableau player de la gameList dont l'id correspond à celle du channel
+ */
+
+const gamelistId = 5
+gameLists[gamelistId].players.push(userJoinGameListEventPayload.data.new_player)
+
+// ----------------------------------------------------------------------------------------------------------
+
+/**
+ * @name user-create-proof
+ * @description Emet l'event sur le channel gamelist_{id}
+ */
+
+interface UserCreateProofEventPayload {
+    data: {
+        new_proof: Proof
+        player_infos: Player[]
+    }
+}
+
+const userCreateProofEventPayload: UserCreateProofEventPayload = {
+    data: {
+        new_proof: {
+            id: 115,
+            creator: { // Player
+                id: 55,
+                pseudo: "",
+                code: "",
+                score: 44,
+                user: {
+                    id: 45,
+                    username: '',
+                    email: ''
+                }
+            },
+            is_closed: false,
+            has_been_validated: null,
+            closed_date: null,
+            challenge_gamelist: { // Challenge GameList
+                id: 5,
+                parent: {
+                    id: 195,
+                    published_state: "...",
+                    show_creator: false,
+                    emoji: "😣",
+                    points: 5,
+                    title: "...",
+                    created_at: "...",
+                    updated_at: "...",
+                }
+
+            },
+            achievers: [ // Player[]
+                {
+                    id: 55,
+                    pseudo: "",
+                    code: "",
+                    score: 44,
+                    user: {
+                        id: 45,
+                        username: '',
+                        email: ''
+                    }
+                }
+            ],
+            media: { // Media
+                id: 635,
+                url: "...",
+                path: "...",
+                uploaded_time: "...",
+                size: 3.69,
+                type: "..."
+            },
+            stats: { // ProofStatistics
+                voters_count: 9,
+                validated_percent: 0,
+                refused_percent: 0,
+                no_voted_percent: 100,
+                validated_count: 0,
+                refused_count: 0,
+                no_voted_count: 9,
+                validation_progression_percent: 0,
+                is_majority_validated: false,
+                is_majority_refused: false
+            }
+        },
+        player_infos: [
+            {
+                id: 55,
+                pseudo: "...",
+                code: "...",
+                score: 44,
+                challenge_infos: [
+                    {
+                        challenge_gamelist: { // Challenge GameList
+                            id: 5,
+                            parent: {
+                                id: 195,
+                                published_state: "...",
+                                show_creator: false,
+                                emoji: "😣",
+                                points: 5,
+                                title: "...",
+                                created_at: "...",
+                                updated_at: "...",
+                            }
+
+                        }, // ChallengeGameList
+                        status: "...",
+                        validate_date: null,
+                        associated_proof: {
+                            id: 115,
+                            creator: { // Player
+                                id: 55,
+                                pseudo: "",
+                                code: "",
+                                score: 44,
+                                user: {
+                                    id: 45,
+                                    username: '',
+                                    email: ''
+                                }
+                            }, // Player
+                            is_closed: false,
+                            has_been_validated: null,
+                            closed_date: null,
+                            achievers: [ // Player[]
+                                {
+                                    id: 55,
+                                    pseudo: "",
+                                    code: "",
+                                    score: 44,
+                                    user: {
+                                        id: 45,
+                                        username: '',
+                                        email: ''
+                                    }
+                                }
+                            ],
+                            media: {
+                                id: 635,
+                                url: "...",
+                                path: "...",
+                                uploaded_time: "...",
+                                size: 3.69,
+                                type: "..."
+                            }, // Media
+                            stats: {
+                                voters_count: 9,
+                                validated_percent: 0,
+                                refused_percent: 0,
+                                no_voted_percent: 100,
+                                validated_count: 0,
+                                refused_count: 0,
+                                no_voted_count: 9,
+                                validation_progression_percent: 0,
+                                is_majority_validated: false,
+                                is_majority_refused: false
+                            } // ProofStatistics
+                        }, // Proof
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+/**
+ * @action :
+ * 1) On va ajouter cette proof dans le tableau activeProofs de tous les joueurs de la gamelists sauf pour les achievers de la proof !
+ *
+ * 2) Pour chaque achiever de la proof, on va aller remplacer dans la variable globale playerInfos, pour la clef de la gamelist courante,
+ * le playerInfos respectif en utilisant la clef player_infos du payload de l'event
+ */
+
+// ----------------------------------------------------------------------------------------------------------
+
+/**
+ * @name user-vote-proof
+ * @description Emet l'event sur le channel gamelist_{id}
+ */
+
+interface UserVoteProofEventPayload {
+    data: {
+        proof: Proof,
+        voter: Player,
+        has_validate: boolean
+    }
+}
+
+const userVoteProofEventPayload: UserVoteProofEventPayload = {
+    data: {
+        proof: {
+            id: 115,
+            creator: { // Player
+                id: 55,
+                pseudo: "",
+                code: "",
+                score: 44,
+                user: {
+                    id: 45,
+                    username: '',
+                    email: ''
+                }
+            },
+            is_closed: false,
+            has_been_validated: null,
+            closed_date: null,
+            challenge_gamelist: { // Challenge GameList
+                id: 5,
+                parent: {
+                    id: 195,
+                    published_state: "...",
+                    show_creator: false,
+                    emoji: "😣",
+                    points: 5,
+                    title: "...",
+                    created_at: "...",
+                    updated_at: "...",
+                }
+
+            },
+            achievers: [ // Player[]
+                {
+                    id: 55,
+                    pseudo: "",
+                    code: "",
+                    score: 44,
+                    user: {
+                        id: 45,
+                        username: '',
+                        email: ''
+                    }
+                }
+            ],
+            media: { // Media
+                id: 635,
+                url: "...",
+                path: "...",
+                uploaded_time: "...",
+                size: 3.69,
+                type: "..."
+            },
+            stats: { // ProofStatistics
+                voters_count: 9,
+                validated_percent: 0,
+                refused_percent: 0,
+                no_voted_percent: 100,
+                validated_count: 0,
+                refused_count: 0,
+                no_voted_count: 9,
+                validation_progression_percent: 0,
+                is_majority_validated: false,
+                is_majority_refused: false
+            }
+        },
+        voter: {
+            id: 30,
+            pseudo: "Erwan",
+            code: "802d8529-44f9-4987-a5a2-599025476515",
+            score: 0,
+            user: {
+                id: 25,
+                username: 'Naël',
+                email: 'nael@mail.com'
+            }
+        },
+        has_validate: true // Le voter à validé ou pas le
+    }
+}
+
+/**
+ * @action :
+ * 1) Il faut mettre à jour la proof dans le tableau activeProofs de tous les players (sauf des achievers) de la gameList
+ * car les stats de vote de la proof ont été mis à jour suite au nouveau vote
+ *
+ * 2) Afficher la popup uniquement aux achievers de la proof un truc du genre (Erwan à refusé/validé ta preuve pour le challenge ...)
+ */
+
+// ----------------------------------------------------------------------------------------------------------
+
+/**
+ * @name proof-completed
+ * @description : Emet l'event sur le channel gamelist_{id}
+ */
+
+interface ProofCompletedEventPayload {
+    data: {
+        proof: Proof
+        player_infos: Player[]
+    }
+}
+
+const proofCompletedEventPayload: ProofCompletedEventPayload = {
+    data: {
+        proof: {
+            id: 115,
+            creator: { // Player
+                id: 55,
+                pseudo: "",
+                code: "",
+                score: 44,
+                user: {
+                    id: 45,
+                    username: '',
+                    email: ''
+                }
+            },
+            is_closed: true,
+            closed_date: '2021-06-30',
+            has_been_validated: true,
+            challenge_gamelist: { // Challenge GameList
+                id: 5,
+                parent: {
+                    id: 195,
+                    published_state: "...",
+                    show_creator: false,
+                    emoji: "😣",
+                    points: 5,
+                    title: "...",
+                    created_at: "...",
+                    updated_at: "...",
+                }
+
+            },
+            achievers: [ // Player[]
+                {
+                    id: 55,
+                    pseudo: "",
+                    code: "",
+                    score: 44,
+                    user: {
+                        id: 45,
+                        username: '',
+                        email: ''
+                    }
+                }
+            ],
+            media: { // Media
+                id: 635,
+                url: "...",
+                path: "...",
+                uploaded_time: "...",
+                size: 3.69,
+                type: "..."
+            },
+            stats: { // ProofStatistics
+                voters_count: 9,
+                validated_percent: 60,
+                refused_percent: 0,
+                no_voted_percent: 10,
+                validated_count: 5,
+                refused_count: 0,
+                no_voted_count: 1,
+                validation_progression_percent: 100,
+                is_majority_validated: true,
+                is_majority_refused: false
+            }
+        },
+        player_infos: [
+            {
+                id: 55,
+                pseudo: "...",
+                code: "...",
+                score: 44,
+                challenge_infos: [
+                    {
+                        challenge_gamelist: {
+                            id: 5
+                        }, // ChallengeGameList
+                        status: "...",
+                        validate_date: null,
+                        associated_proof: {
+                            id: 115,
+                            creator: { // Player
+                                id: 55,
+                                pseudo: "",
+                                code: "",
+                                score: 44,
+                                user: {
+                                    id: 45,
+                                    username: '',
+                                    email: ''
+                                }
+                            }, // Player
+                            is_closed: false,
+                            has_been_validated: null,
+                            closed_date: null,
+                            achievers: [ // Player[]
+                                {
+                                    id: 55,
+                                    pseudo: "",
+                                    code: "",
+                                    score: 44,
+                                    user: {
+                                        id: 45,
+                                        username: '',
+                                        email: ''
+                                    }
+                                }
+                            ],
+                            media: {
+                                id: 635,
+                                url: "...",
+                                path: "...",
+                                uploaded_time: "...",
+                                size: 3.69,
+                                type: "..."
+                            }, // Media
+                            stats: {
+                                voters_count: 9,
+                                validated_percent: 0,
+                                refused_percent: 0,
+                                no_voted_percent: 100,
+                                validated_count: 0,
+                                refused_count: 0,
+                                no_voted_count: 9,
+                                validation_progression_percent: 0,
+                                is_majority_validated: false,
+                                is_majority_refused: false
+                            } // ProofStatistics
+                        }, // Proof
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+/**
+ * @action
+ * 1) On va notifier seulement aux achievers le résultat de la preuve (avec une popup par exemple)
+ *
+ * 2) On va aller mettre à jour pour tous les joueurs de la gamelist les données des achievers (car leur score à peut être changé)
+ * Pour se faire, on recupère les données des player dans achiever et aller mettre à jour la variable global gamelists (clef players)
+ *
+ * 3) Pour chaque achiever de la proof, on va aller remplacer dans la variable globale playerInfos, pour la clef de la gamelist courrante,
+ * le playerInfos respectif en utilisant la clef player_infos du payload de l'event
+ */
+
+// ----------------------------------------------------------------------------------------------------------
+
+/**
+ * @name player-pseudo-updated
+ * @description : Emet l'event sur le channel gamelist_{id}
+ */
+
+interface PlayerPseudoUpdatedEventPayload {
+    data: {
+        player: Player
+    }
+}
+
+const playerPseudoUpdatedEventPayload: PlayerPseudoUpdatedEventPayload = {
+    data: {
+        player: {
+            id: 30,
+            pseudo: "Wati bg du desert",
+            code: "802d8529-44f9-4987-a5a2-599025476515",
+            score: 0,
+            user: {
+                id: 25,
+                username: 'Naël',
+                email: 'nael@mail.com'
+            }
+        }
+    }
+}
+
+/**
+ * @action : On va aller mettre à jour le player dans la variable global gameLists
+ */
