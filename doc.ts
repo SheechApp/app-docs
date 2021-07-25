@@ -422,12 +422,21 @@ interface CreateGameListResponse {
  */
 interface JoinGameListResponse {
     result: 'success'
-    data: GameList
+    data: {
+        gamelist: GameList
+        active_proofs: Proof[]
+        player_infos: Player
+    }
 }
 
-// Apres avoir recu la réponse, vous avez juste à la push dans la variable globale gamelists :
+// Apres avoir recu la réponse, on récupère la gamelist ainsi que les active_proofs et les player_infos associé. Il faut donc les
+// push dans les varaibles globales respectives (bien faire attention de créer la clef correspondant à la gamelist id pour les variables
+// activeProofs et playerInfos
 /**
- * @code : gameList.push(response.data)
+ * @code :
+ * gameList.push(response.data.gamelist)
+ * activeProofs[response.data.gamelist.id] = response.data.active_proofs
+ * playerInfos[response.data.gamelist.id] = response.data.player_infos
  */
 
 ////////////////////////////////////////////////////////////////////////////
