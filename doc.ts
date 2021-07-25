@@ -173,7 +173,7 @@ interface User {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// APRES GET /me?with=_activeProofs,gamelists,_playerInfos
+// APRES GET /me?with=_activeProofs,gameLists,_playerInfos
 ////////////////////////////////////////////////////////////////////////////
 /**
  * @description : Réponse HTTP de l'url : https://api.summerlist.app/users/me?with=gameLists,_activeProofs,_playerInfos
@@ -685,8 +685,9 @@ const userCreateProofEventPayload: UserCreateProofEventPayload = {
  * @action :
  * 1) On va ajouter cette proof dans le tableau activeProofs de tous les joueurs de la gamelists sauf pour les achievers de la proof !
  *
- * 2) Pour chaque achiever de la proof, on va aller remplacer dans la variable globale playerInfos, pour la clef de la gamelist courante,
- * le playerInfos respectif en utilisant la clef player_infos du payload de l'event
+ * 2) Pour chaque achiever de la proof qui n'est pas le creator, on va aller remplacer dans la variable globale playerInfos, pour la clef de la gamelist courante,
+ * le playerInfos respectif en utilisant la clef player_infos du payload de l'event. Le creator lui a déjà update sa variable playerInfos grâce aux données
+ * récupérées dans la réponse http "Create proof)
  */
 
 // ----------------------------------------------------------------------------------------------------------
