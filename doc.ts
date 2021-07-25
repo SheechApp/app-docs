@@ -530,7 +530,7 @@ gameLists[gamelistId].players.push(userJoinGameListEventPayload.data.new_player)
 interface UserCreateProofEventPayload {
     data: {
         new_proof: Proof
-        player_infos: Player[]
+        achievers_player_infos: Player[]
     }
 }
 
@@ -600,7 +600,7 @@ const userCreateProofEventPayload: UserCreateProofEventPayload = {
                 is_majority_refused: false
             }
         },
-        player_infos: [
+        achievers_player_infos: [
             {
                 id: 55,
                 pseudo: "...",
