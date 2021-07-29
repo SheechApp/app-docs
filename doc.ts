@@ -539,7 +539,6 @@ gameLists[gamelistId].players.push(userJoinGameListEventPayload.data.new_player)
 interface UserCreateProofEventPayload {
     data: {
         new_proof: Proof
-        achievers_player_infos: Player[]
     }
 }
 
@@ -608,85 +607,7 @@ const userCreateProofEventPayload: UserCreateProofEventPayload = {
                 is_majority_validated: false,
                 is_majority_refused: false
             }
-        },
-        achievers_player_infos: [
-            {
-                id: 55,
-                pseudo: "...",
-                code: "...",
-                score: 44,
-                challenge_infos: [
-                    {
-                        challenge_gamelist: { // Challenge GameList
-                            id: 5,
-                            parent: {
-                                id: 195,
-                                published_state: "...",
-                                show_creator: false,
-                                emoji: "😣",
-                                points: 5,
-                                title: "...",
-                                created_at: "...",
-                                updated_at: "...",
-                            }
-
-                        }, // ChallengeGameList
-                        status: "...",
-                        validate_date: null,
-                        associated_proof: {
-                            id: 115,
-                            creator: { // Player
-                                id: 55,
-                                pseudo: "",
-                                code: "",
-                                score: 44,
-                                user: {
-                                    id: 45,
-                                    username: '',
-                                    email: ''
-                                }
-                            }, // Player
-                            is_closed: false,
-                            has_been_validated: null,
-                            closed_date: null,
-                            achievers: [ // Player[]
-                                {
-                                    id: 55,
-                                    pseudo: "",
-                                    code: "",
-                                    score: 44,
-                                    user: {
-                                        id: 45,
-                                        username: '',
-                                        email: ''
-                                    }
-                                }
-                            ],
-                            media: {
-                                id: 635,
-                                url: "...",
-                                path: "...",
-                                uploaded_time: "...",
-                                size: 3.69,
-                                type: "..."
-                            }, // Media
-                            stats: {
-                                voters_count: 9,
-                                validated_percent: 0,
-                                refused_percent: 0,
-                                no_voted_percent: 100,
-                                validated_count: 0,
-                                refused_count: 0,
-                                no_voted_count: 9,
-                                validation_progression_percent: 0,
-                                is_majority_validated: false,
-                                is_majority_refused: false
-                            } // ProofStatistics
-                        }, // Proof
-                    }
-                ]
-            }
-        ]
+        }
     }
 }
 
