@@ -492,6 +492,22 @@ interface GetChallengeCategoriesResponse {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+// APRES le GET /gamelists/{gameListId}/challenges/{challengeId}
+////////////////////////////////////////////////////////////////////////////
+/**
+ * @description : Réponse HTTP de l'url : https://api.summerlist.app/gamelists/{gameListId}/challenges/{challengeId}
+ */
+interface GetAvailableAchieversForChallengeResponse {
+    result: 'success',
+    data: Player[]
+}
+
+/**
+ * @code renvoie un tableau de player correspondant aux achievers disponible. Attention, parmi eux se trouve le
+ * futur créateur de la proof. Il faut penser à l'exclure en front.
+ */
+
+////////////////////////////////////////////////////////////////////////////
 // PUSHER EVENTS
 ////////////////////////////////////////////////////////////////////////////
 
