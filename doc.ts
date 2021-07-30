@@ -170,6 +170,7 @@ interface User {
     id: number
     username: string
     email: string
+    avatar: Media|null
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -234,13 +235,29 @@ let gameLists: GameList[] = [
                     id: 45,
                     username: "...",
                     email: "...",
+                    avatar: {
+                        id: 2235,
+                        url: "...",
+                        path: "...",
+                        uploaded_time: "...",
+                        size: 57.78,
+                        type: "image"
+                    }
                 }
             }
         ],
         creator: {
             id: 10,
             username: '...',
-            email: '...'
+            email: '...',
+            avatar: {
+                id: 2235,
+                url: "...",
+                path: "...",
+                uploaded_time: "...",
+                size: 57.78,
+                type: "image"
+            }
         }
     }
 ]
@@ -260,7 +277,15 @@ let activeProofs: { [key: string]: Proof[] } = {
                 user: {
                     id: 45,
                     username: '',
-                    email: ''
+                    email: '',
+                    avatar: {
+                        id: 2235,
+                        url: "...",
+                        path: "...",
+                        uploaded_time: "...",
+                        size: 57.78,
+                        type: "image"
+                    }
                 }
             },
             is_closed: false,
@@ -289,7 +314,15 @@ let activeProofs: { [key: string]: Proof[] } = {
                     user: {
                         id: 45,
                         username: '',
-                        email: ''
+                        email: '',
+                        avatar: {
+                            id: 2235,
+                            url: "...",
+                            path: "...",
+                            uploaded_time: "...",
+                            size: 57.78,
+                            type: "image"
+                        }
                     }
                 }
             ],
@@ -353,7 +386,15 @@ let playerInfos: { [key: string]: Player } = {
                         user: {
                             id: 45,
                             username: '',
-                            email: ''
+                            email: '',
+                            avatar: {
+                                id: 2235,
+                                url: "...",
+                                path: "...",
+                                uploaded_time: "...",
+                                size: 57.78,
+                                type: "image"
+                            }
                         }
                     }, // Player
                     is_closed: false,
@@ -368,7 +409,15 @@ let playerInfos: { [key: string]: Player } = {
                             user: {
                                 id: 45,
                                 username: '',
-                                email: ''
+                                email: '',
+                                avatar: {
+                                    id: 2235,
+                                    url: "...",
+                                    path: "...",
+                                    uploaded_time: "...",
+                                    size: 57.78,
+                                    type: "image"
+                                }
                             }
                         }
                     ],
@@ -541,7 +590,15 @@ const userJoinGameListEventPayload: UserJoinGameListEventPayload = {
             user: {
                 id: 45,
                 username: 'Naël',
-                email: 'nael@mail.com'
+                email: 'nael@mail.com',
+                avatar: {
+                    id: 2235,
+                    url: "...",
+                    path: "...",
+                    uploaded_time: "...",
+                    size: 57.78,
+                    type: "image"
+                }
             }
         }
     }
@@ -579,7 +636,15 @@ const userCreateProofEventPayload: UserCreateProofEventPayload = {
                 user: {
                     id: 45,
                     username: '',
-                    email: ''
+                    email: '',
+                    avatar: {
+                        id: 2235,
+                        url: "...",
+                        path: "...",
+                        uploaded_time: "...",
+                        size: 57.78,
+                        type: "image"
+                    }
                 }
             },
             is_closed: false,
@@ -608,7 +673,15 @@ const userCreateProofEventPayload: UserCreateProofEventPayload = {
                     user: {
                         id: 45,
                         username: '',
-                        email: ''
+                        email: '',
+                        avatar: {
+                            id: 2235,
+                            url: "...",
+                            path: "...",
+                            uploaded_time: "...",
+                            size: 57.78,
+                            type: "image"
+                        }
                     }
                 }
             ],
@@ -672,7 +745,15 @@ const userVoteProofEventPayload: UserVoteProofEventPayload = {
                 user: {
                     id: 45,
                     username: '',
-                    email: ''
+                    email: '',
+                    avatar: {
+                        id: 2235,
+                        url: "...",
+                        path: "...",
+                        uploaded_time: "...",
+                        size: 57.78,
+                        type: "image"
+                    }
                 }
             },
             is_closed: false,
@@ -701,7 +782,15 @@ const userVoteProofEventPayload: UserVoteProofEventPayload = {
                     user: {
                         id: 45,
                         username: '',
-                        email: ''
+                        email: '',
+                        avatar: {
+                            id: 2235,
+                            url: "...",
+                            path: "...",
+                            uploaded_time: "...",
+                            size: 57.78,
+                            type: "image"
+                        }
                     }
                 }
             ],
@@ -734,7 +823,15 @@ const userVoteProofEventPayload: UserVoteProofEventPayload = {
             user: {
                 id: 25,
                 username: 'Naël',
-                email: 'nael@mail.com'
+                email: 'nael@mail.com',
+                avatar: {
+                    id: 2235,
+                    url: "...",
+                    path: "...",
+                    uploaded_time: "...",
+                    size: 57.78,
+                    type: "image"
+                }
             }
         },
         has_validate: true // Le voter à validé ou pas le
@@ -775,7 +872,15 @@ const proofCompletedEventPayload: ProofCompletedEventPayload = {
                 user: {
                     id: 45,
                     username: '',
-                    email: ''
+                    email: '',
+                    avatar: {
+                        id: 2235,
+                        url: "...",
+                        path: "...",
+                        uploaded_time: "...",
+                        size: 57.78,
+                        type: "image"
+                    }
                 }
             },
             is_closed: true,
@@ -804,7 +909,15 @@ const proofCompletedEventPayload: ProofCompletedEventPayload = {
                     user: {
                         id: 45,
                         username: '',
-                        email: ''
+                        email: '',
+                        avatar: {
+                            id: 2235,
+                            url: "...",
+                            path: "...",
+                            uploaded_time: "...",
+                            size: 57.78,
+                            type: "image"
+                        }
                     }
                 }
             ],
@@ -852,7 +965,15 @@ const proofCompletedEventPayload: ProofCompletedEventPayload = {
                                 user: {
                                     id: 45,
                                     username: '',
-                                    email: ''
+                                    email: '',
+                                    avatar: {
+                                        id: 2235,
+                                        url: "...",
+                                        path: "...",
+                                        uploaded_time: "...",
+                                        size: 57.78,
+                                        type: "image"
+                                    }
                                 }
                             }, // Player
                             is_closed: false,
@@ -867,7 +988,15 @@ const proofCompletedEventPayload: ProofCompletedEventPayload = {
                                     user: {
                                         id: 45,
                                         username: '',
-                                        email: ''
+                                        email: '',
+                                        avatar: {
+                                            id: 2235,
+                                            url: "...",
+                                            path: "...",
+                                            uploaded_time: "...",
+                                            size: 57.78,
+                                            type: "image"
+                                        }
                                     }
                                 }
                             ],
@@ -933,7 +1062,15 @@ const playerPseudoUpdatedEventPayload: PlayerPseudoUpdatedEventPayload = {
             user: {
                 id: 25,
                 username: 'Naël',
-                email: 'nael@mail.com'
+                email: 'nael@mail.com',
+                avatar: {
+                    id: 2235,
+                    url: "...",
+                    path: "...",
+                    uploaded_time: "...",
+                    size: 57.78,
+                    type: "image"
+                }
             }
         }
     }
